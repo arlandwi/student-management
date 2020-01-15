@@ -11,9 +11,9 @@
             <div class="container">
                 <div class="row justify-content-between">
                     <h5 class=""> List Data Siswa</h5>
-                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-default">
+                    <a href="{{ route('student.create') }}" class="btn btn-success btn-sm modal-show" title="Tambah Data Siswa">
                         Tambah Siswa
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -38,6 +38,7 @@
     </div>
 <!-- /.card -->
 </div>
+@include('layout._modal')
 @endsection
 
 @push('script')
@@ -57,5 +58,66 @@
                 {data: 'action', name: 'action'},
             ],
         })
+
+        $('body').on('click', '.modal-show', function (event) {
+            event.preventDefault();
+
+            var me = $(this),
+                url = me.attr('href'),
+                title = me.attr('title');
+
+            $('#modal-title').text(title);
+            $('#modal-btn-save').text('Tambahkan');
+
+            $.ajax({
+                url: url,
+                dataType: 'html',
+                success: function (response) {
+                    $('#modal-body').html(response);
+                }
+            });
+
+            $('#modal').modal('show');
+        });
+
+        $('#modal-btn-save').click(function (event) {
+            event.preventDefault();
+
+            var form = $('#modal-body form'),
+                url = form.attr('action'),
+                method = $('input[name=_method]').val() == undefined ? 'POST' : 'PUT';
+
+            form.find('.help-block').remove();
+            form.find('.form-group').removeClass('has-error');
+
+            $.ajax({
+                url : url,
+                method: method,
+                data : form.serialize(),
+                success: function (response) {
+                    form.trigger('reset');
+                    $('#modal').modal('hide');
+                    $('#datatables').DataTable().ajax.reload();
+
+                    swal({
+                        type : 'success',
+                        title : 'Success!',
+                        text : 'Data has been saved!'
+                    });
+                },
+                error : function (xhr) {
+                    var res = xhr.responseJSON;
+                    if ($.isEmptyObject(res) == false) {
+                        $.each(res.errors, function (key, value) {
+                            $('#' + key)
+                                .closest('.form-group')
+                                // .addClass('has-danger')
+                                .append('<div class="invalid-feedback">' + value + '</div>');
+                        });
+                    }
+                }
+            })
+        });
+
     </script>
 @endpush

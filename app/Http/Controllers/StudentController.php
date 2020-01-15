@@ -40,7 +40,8 @@ class StudentController extends Controller
      */
     public function create()
     {
-        //
+        $model = new Student();
+        return view('student.form', compact('model'));
     }
 
     /**
@@ -51,7 +52,16 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'nisn' => 'required|digit:4|unique:students',
+            'name' => 'required|string|max:255',
+            'birth_date' => 'required',
+            'gender' => 'required',
+            'religion' => 'required',
+            'address' => 'required|string|max:255'
+        ]);
+        $model = Student::create($request->all());
+        return $model;
     }
 
     /**
