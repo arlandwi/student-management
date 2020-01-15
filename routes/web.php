@@ -1,4 +1,7 @@
 <?php
+use RealRashid\SweetAlert\Facades\Alert;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -12,5 +15,9 @@
 */
 
 Route::get('/', function () {
-    return view('student');
+    return view('student.student');
 });
+
+Route::resource('student', 'StudentController');
+
+
